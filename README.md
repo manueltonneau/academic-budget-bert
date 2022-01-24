@@ -36,7 +36,8 @@ We highly suggest reviewing the various [training features](#time-based-training
 
 ```bash
 deepspeed run_pretraining.py \
-  --model_type bert-mlm --tokenizer_name bert-large-uncased \
+  --model_type bert-mlm-roberta --tokenizer_name roberta-base \
+  --load_training_checkpoint XXX \
   --hidden_act gelu \
   --hidden_size 1024 \
   --num_hidden_layers 24 \
@@ -64,7 +65,7 @@ deepspeed run_pretraining.py \
   --print_steps 100 \
   --num_epochs_between_checkpoints 10000 \
   --job_name pretraining_experiment \
-  --project_name budget-bert-pretraining \
+  --project_name budget-roberta-pretraining \
   --validation_epochs 3 \
   --validation_epochs_begin 1 \
   --validation_epochs_end 1 \
