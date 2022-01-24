@@ -37,7 +37,7 @@ We highly suggest reviewing the various [training features](#time-based-training
 ```bash
 deepspeed run_pretraining.py \
   --model_type bert-mlm-roberta --tokenizer_name roberta-base \
-  --load_training_checkpoint XXX \
+  --load_training_checkpoint roberta.base.tar.gz \
   --hidden_act gelu \
   --hidden_size 1024 \
   --num_hidden_layers 24 \
@@ -81,6 +81,8 @@ deepspeed run_pretraining.py \
   --seed 42 \
   --fp16
 ```
+
+The RoBERTa tar file can be found [here](https://github.com/pytorch/fairseq/blob/main/examples/roberta/README.md#pre-trained-models).
 
 ### Time-based Training
 
