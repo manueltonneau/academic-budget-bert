@@ -2,8 +2,8 @@
 
 #SBATCH --job-name=generate_samples
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=200GB
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=20GB
 #SBATCH --time=24:00:00
 #SBATCH --gres=gpu:0
 #SBATCH --mail-type=BEGIN
@@ -23,9 +23,14 @@ cd /scratch/mt4493/pretraining/code/academic-budget-bert/dataset
 
 singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budget_bert.ext3:ro \
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
-	    /bin/bash -c "source /ext3/env.sh; python3 shard_data.py \
-	        --dir /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER} \
-          -o /scratch/mt4493/pretraining/data/pretraining_files/${INPUT_FOLDER} \
-          --num_train_shards 256 \
-          --num_test_shards 128 \
-          --frac_test 0.1"
+	    /bin/bash -c "source /ext3/env.sh; python3 generate_samples.py \
+    --dir /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER}/shards \
+    -o /scratch/mt4493/pretraining/data/pretraining_files/${INPUT_FOLDER} \
+    --dup_factor 10 \
+    --seed 42 \
+    --vocab_file <path_to_vocabulary_file> \
+    --do_lower_case 1 \
+    --masked_lm_prob 0.15 \
+    --max_seq_length 128 \
+    --max_predictions_per_seq 20 \
+    --n_processes 16"

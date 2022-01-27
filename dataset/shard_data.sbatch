@@ -13,7 +13,7 @@
 
 INPUT_FOLDER=$1
 
-mkdir -p /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER}/shards
+mkdir -p /scratch/mt4493/pretraining/data/shards/${INPUT_FOLDER}
 
 module purge
 #module load anaconda3/2020.02
@@ -25,7 +25,7 @@ singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budg
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
 	    /bin/bash -c "source /ext3/env.sh; python3 shard_data.py \
 	        --dir /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER} \
-          -o /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER}/shards \
+          -o /scratch/mt4493/pretraining/data/shards/${INPUT_FOLDER} \
           --num_train_shards 256 \
           --num_test_shards 128 \
           --frac_test 0.1"
