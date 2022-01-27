@@ -24,7 +24,7 @@ cd /scratch/mt4493/pretraining/code/academic-budget-bert/dataset
 singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budget_bert.ext3:ro \
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
 	    /bin/bash -c "source /ext3/env.sh; python3 generate_samples.py \
-    --dir /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER}/shards \
+    --dir /scratch/mt4493/pretraining/data/shards/${INPUT_FOLDER} \
     -o /scratch/mt4493/pretraining/data/pretraining_files/${INPUT_FOLDER} \
     --dup_factor 10 \
     --seed 42 \
