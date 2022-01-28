@@ -24,7 +24,7 @@ cd /scratch/mt4493/pretraining/code/academic-budget-bert/dataset
 singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budget_bert.ext3:ro \
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
 	    /bin/bash -c "source /ext3/env.sh; python3 shard_data.py \
-	        --dir /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER} \
+	        --dir /scratch/mt4493/pretraining/data/txts/${INPUT_FOLDER}/shards \
           -o /scratch/mt4493/pretraining/data/shards/${INPUT_FOLDER} \
           --num_train_shards 256 \
           --num_test_shards 128 \
