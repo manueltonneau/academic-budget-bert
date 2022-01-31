@@ -19,6 +19,12 @@ from itertools import islice
 
 import multiprocessing
 import statistics
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
+                    datefmt='%m/%d/%Y %H:%M:%S',
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class Sharding:
@@ -49,21 +55,21 @@ class Sharding:
 
     # Remember, the input files contain one article per line (the whitespace check is to skip extraneous blank lines)
     def load_articles(self):
-        print("Start: Loading Articles")
+        logger.info("Start: Loading Articles")
 
         global_article_count = 0
         for input_file in self.input_files:
-            print("input file:", input_file)
+            logger.info("input file:", input_file)
             with open(input_file, mode="r", newline="\n") as f:
                 for i, line in enumerate(f):
                     if line.strip():
                         self.articles[global_article_count] = line.rstrip()
                         global_article_count += 1
 
-        print("End: Loading Articles: There are", len(self.articles), "articles.")
+        logger.info("End: Loading Articles: There are", len(self.articles), "articles.")
 
     def segment_articles_into_sentences(self, segmenter):
-        print("Start: Sentence Segmentation")
+        logger.info("Start: Sentence Segmentation")
         if len(self.articles) is 0:
             self.load_articles()
 
@@ -91,7 +97,7 @@ class Sharding:
                     sentences[i] = segmenter.segment_string(articles[article])
 
                     if i % 5000 == 0:
-                        print("Segmenting article", i)
+                        logger.info("Segmenting article", i)
 
                 return_dict.update(sentences)
 
@@ -120,12 +126,12 @@ class Sharding:
                 self.sentences[i] = segmenter.segment_string(self.articles[article])
 
                 if i % 5000 == 0:
-                    print("Segmenting article", i)
+                    logger.info("Segmenting article", i)
 
-        print("End: Sentence Segmentation")
+        logger.info("End: Sentence Segmentation")
 
     def init_output_files(self):
-        print("Start: Init Output Files")
+        logger.info("Start: Init Output Files")
         assert (
             len(self.output_training_files) is 0
         ), "Internal storage self.output_files already contains data. This function is intended to be used by the constructor only."
@@ -151,7 +157,7 @@ class Sharding:
             )
             self.output_test_files[name] = []
 
-        print("End: Init Output Files")
+        logger.info("End: Init Output Files")
 
     def get_sentences_per_shard(self, shard):
         result = 0
@@ -161,7 +167,7 @@ class Sharding:
         return result
 
     def distribute_articles_over_shards(self):
-        print("Start: Distribute Articles Over Shards")
+        logger.info("Start: Distribute Articles Over Shards")
         assert (
             len(self.articles) >= self.n_training_shards + self.n_test_shards
         ), "There are fewer articles than shards. Please add more data or reduce the number of shards requested."
@@ -203,7 +209,7 @@ class Sharding:
 
             if len(self.sentences[current_article_id]) > nominal_sentences_per_training_shard:
                 nominal_sentences_per_training_shard = len(self.sentences[current_article_id])
-                print(
+                logger.info(
                     "Warning: A single article contains more than the nominal number of sentences per training shard."
                 )
 
@@ -220,7 +226,7 @@ class Sharding:
 
             if len(self.sentences[current_article_id]) > nominal_sentences_per_test_shard:
                 nominal_sentences_per_test_shard = len(self.sentences[current_article_id])
-                print(
+                logger.info(
                     "Warning: A single article contains more than the nominal number of sentences per test shard."
                 )
 
@@ -325,30 +331,30 @@ class Sharding:
             training_median = statistics.median(training_counts)
             test_median = statistics.median(test_counts)
 
-            print("Distributing data over shards:", len(unused_article_set), "articles remaining.")
+            logger.info("Distributing data over shards:", len(unused_article_set), "articles remaining.")
 
         if len(unused_article_set) != 0:
-            print("Warning: Some articles did not make it into output files.")
+            logger.info("Warning: Some articles did not make it into output files.")
 
         for shard in self.output_training_files:
-            print(
+            logger.info(
                 "Training shard:", self.get_sentences_per_shard(self.output_training_files[shard])
             )
 
         for shard in self.output_test_files:
-            print("Test shard:", self.get_sentences_per_shard(self.output_test_files[shard]))
+            logger.info("Test shard:", self.get_sentences_per_shard(self.output_test_files[shard]))
 
-        print("End: Distribute Articles Over Shards")
+        logger.info("End: Distribute Articles Over Shards")
 
     def write_shards_to_disk(self):
-        print("Start: Write Shards to Disk")
+        logger.info("Start: Write Shards to Disk")
         for shard in self.output_training_files:
             self.write_single_shard(shard, self.output_training_files[shard])
 
         for shard in self.output_test_files:
             self.write_single_shard(shard, self.output_test_files[shard])
 
-        print("End: Write Shards to Disk")
+        logger.info("End: Write Shards to Disk")
 
     def write_single_shard(self, shard_name, shard):
         with open(shard_name, mode="w", newline="\n") as f:
@@ -364,7 +370,7 @@ try:
 
     nltk.download("punkt")
 except ModuleNotFoundError or ImportError as e:
-    print("nltk is required for sharding. please install before running.")
+    logger.info("nltk is required for sharding. please install before running.")
 
 
 class NLTKSegmenter:

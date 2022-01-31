@@ -20,6 +20,12 @@ from os import listdir
 from os.path import join
 
 from data import TextSharding
+import logging
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
+                    datefmt='%m/%d/%Y %H:%M:%S',
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -44,7 +50,7 @@ if __name__ == "__main__":
 
     input_files = [join(args.dir, f) for f in listdir(args.dir)]
     shards_dir = pathlib.Path(args.o)
-    print(shards_dir)
+    logger.info(shards_dir)
     shards_dir.mkdir(parents=True, exist_ok=True)
 
     segmenter = TextSharding.NLTKSegmenter()
