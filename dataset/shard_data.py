@@ -62,6 +62,6 @@ if __name__ == "__main__":
         args.frac_test,
     )
     sharding.load_articles()
-    sharding.segment_articles_into_sentences(segmenter)
+    # sharding.segment_articles_into_sentences(segmenter)
     sharding.distribute_articles_over_shards()
     sharding.write_shards_to_disk()
