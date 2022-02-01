@@ -165,11 +165,9 @@ class Sharding:
         logger.info("End: Init Output Files")
 
     def get_sentences_per_shard(self, shard):
-        if self.segment:
-            result = 0
-            for article_id in shard:
-                result += len(self.sentences[article_id])
-
+        result = 0
+        for article_id in shard:
+            result += len(self.sentences[article_id])
         return result
 
     def distribute_articles_over_shards(self):
