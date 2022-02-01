@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 class Sharding:
     def __init__(
-        self, input_files, output_name_prefix, n_training_shards, n_test_shards, fraction_test_set
+        self, input_files, output_name_prefix, n_training_shards, n_test_shards, fraction_test_set, segment
     ):
         assert len(input_files) > 0, "The input file list must contain at least one file."
         assert n_training_shards > 0, "There must be at least one output shard."
@@ -38,6 +38,7 @@ class Sharding:
         self.n_training_shards = n_training_shards
         self.n_test_shards = n_test_shards
         self.fraction_test_set = fraction_test_set
+        self.segment = segment
 
         self.input_files = input_files
 
@@ -69,7 +70,6 @@ class Sharding:
         logger.info(f"End: Loading Articles: There are {len(self.articles)} articles.")
 
     def segment_articles_into_sentences(self, segmenter):
-        logger.info("Start: Sentence Segmentation")
         if len(self.articles) is 0:
             self.load_articles()
 
@@ -77,57 +77,62 @@ class Sharding:
             len(self.articles) is not 0
         ), "Please check that input files are present and contain data."
 
-        # TODO: WIP: multiprocessing (create independent ranges and spawn processes)
-        use_multiprocessing = "serial"
+        if self.segment:
+            logger.info("Start: Sentence Segmentation")
+            # TODO: WIP: multiprocessing (create independent ranges and spawn processes)
+            use_multiprocessing = "serial"
 
-        def chunks(data, size=len(self.articles)):
-            it = iter(data)
-            for i in range(0, len(data), size):
-                yield {k: data[k] for k in islice(it, size)}
+            def chunks(data, size=len(self.articles)):
+                it = iter(data)
+                for i in range(0, len(data), size):
+                    yield {k: data[k] for k in islice(it, size)}
 
-        if use_multiprocessing == "manager":
-            manager = multiprocessing.Manager()
-            return_dict = manager.dict()
-            jobs = []
-            n_processes = 7  # in addition to the main process, total = n_proc+1
+            if use_multiprocessing == "manager":
+                manager = multiprocessing.Manager()
+                return_dict = manager.dict()
+                jobs = []
+                n_processes = 7  # in addition to the main process, total = n_proc+1
 
-            def work(articles, return_dict):
-                sentences = {}
-                for i, article in enumerate(articles):
-                    sentences[i] = segmenter.segment_string(articles[article])
+                def work(articles, return_dict):
+                    sentences = {}
+                    for i, article in enumerate(articles):
+                        sentences[i] = segmenter.segment_string(articles[article])
+
+                        if i % 5000 == 0:
+                            logger.info(f"Segmenting article {i}")
+
+                    return_dict.update(sentences)
+
+                for item in chunks(self.articles, len(self.articles)):
+                    p = multiprocessing.Process(target=work, args=(item, return_dict))
+
+                    # Busy wait
+                    while len(jobs) >= n_processes:
+                        pass
+
+                    jobs.append(p)
+                    p.start()
+
+                for proc in jobs:
+                    proc.join()
+
+            elif use_multiprocessing == "queue":
+                work_queue = multiprocessing.Queue()
+                jobs = []
+
+                for item in chunks(self.articles, len(self.articles)):
+                    pass
+
+            else:  # serial option
+                for i, article in enumerate(self.articles):
+                    self.sentences[i] = segmenter.segment_string(self.articles[article])
 
                     if i % 5000 == 0:
                         logger.info(f"Segmenting article {i}")
-
-                return_dict.update(sentences)
-
-            for item in chunks(self.articles, len(self.articles)):
-                p = multiprocessing.Process(target=work, args=(item, return_dict))
-
-                # Busy wait
-                while len(jobs) >= n_processes:
-                    pass
-
-                jobs.append(p)
-                p.start()
-
-            for proc in jobs:
-                proc.join()
-
-        elif use_multiprocessing == "queue":
-            work_queue = multiprocessing.Queue()
-            jobs = []
-
-            for item in chunks(self.articles, len(self.articles)):
-                pass
-
-        else:  # serial option
+        else:
+            logger.info('Not segmenting')
             for i, article in enumerate(self.articles):
-                self.sentences[i] = segmenter.segment_string(self.articles[article])
-
-                if i % 5000 == 0:
-                    logger.info(f"Segmenting article {i}")
-
+                self.sentences[i] = [self.articles[article]]
         logger.info("End: Sentence Segmentation")
 
     def init_output_files(self):
@@ -160,9 +165,10 @@ class Sharding:
         logger.info("End: Init Output Files")
 
     def get_sentences_per_shard(self, shard):
-        result = 0
-        for article_id in shard:
-            result += len(self.sentences[article_id])
+        if self.segment:
+            result = 0
+            for article_id in shard:
+                result += len(self.sentences[article_id])
 
         return result
 
