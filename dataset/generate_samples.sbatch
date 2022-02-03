@@ -33,4 +33,5 @@ singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budg
     --masked_lm_prob 0.15 \
     --max_seq_length 128 \
     --max_predictions_per_seq 20 \
-    --n_processes 16"
+    --n_processes 16 \
+    --model_name roberta-base"
