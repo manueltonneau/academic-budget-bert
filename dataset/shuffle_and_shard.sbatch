@@ -3,7 +3,7 @@
 #SBATCH --job-name=shuffle_and_shard
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=50GB
+#SBATCH --mem=600GB
 #SBATCH --time=72:00:00
 #SBATCH --gres=gpu:0
 #SBATCH --mail-type=BEGIN
@@ -15,8 +15,6 @@ INPUT_TXT=$1
 OUTPUT_FOLDER=$2
 
 mkdir -p /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}
-mkdir -p /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/train
-mkdir -p /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/test
 
 
 module purge
@@ -31,7 +29,7 @@ test_len=$((${line_count} - ${train_len}))
 csplit /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/shuffled.txt ${train_len}
 echo 'splitted the shuffled file into two'
 
-split -a 5 -d -l $((${line_split} / 256)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx00 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/train
+split -a 5 -d -l $((${line_split} / 256)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx00 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/training
 echo 'created train shards'
 split -a 5 -d -l $((${line_split} / 128)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx01 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/test
 echo 'created test shards'
