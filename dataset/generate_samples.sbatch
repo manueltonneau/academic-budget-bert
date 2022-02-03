@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=generate_samples
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=1
 #SBATCH --mem=20GB
 #SBATCH --time=24:00:00
 #SBATCH --gres=gpu:0
@@ -33,5 +33,5 @@ singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budg
     --masked_lm_prob 0.15 \
     --max_seq_length 128 \
     --max_predictions_per_seq 20 \
-    --n_processes 16 \
+    --n_processes 1 \
     --model_name roberta-base"
