@@ -30,9 +30,9 @@ cd /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}
 csplit /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/shuffled.txt ${train_len}
 echo 'splitted the shuffled file into two'
 
-split -a 5 -d -l $((line_split / 256)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx00 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/training
+split -a 5 -d -l $((train_len / 256)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx00 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/training
 echo 'created train shards'
-split -a 5 -d -l $((line_split / 128)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx01 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/test
+split -a 5 -d -l $((test_len / 128)) --additional-suffix=.txt /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx01 /scratch/mt4493/pretraining/data/shards/${OUTPUT_FOLDER}/test
 echo 'created test shards'
 
 rm /scratch/mt4493/pretraining/data/txts/${OUTPUT_FOLDER}/xx00
