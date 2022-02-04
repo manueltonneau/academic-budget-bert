@@ -28,7 +28,6 @@ singularity exec --overlay /scratch/mt4493/pretraining/singularity/academic_budg
     -o /scratch/mt4493/pretraining/data/pretraining_files/${INPUT_FOLDER} \
     --dup_factor 10 \
     --seed 42 \
-    --vocab_file /scratch/mt4493/pretraining/init/roberta.base/vocab.json \
     --do_lower_case 0 \
     --masked_lm_prob 0.15 \
     --max_seq_length 128 \
