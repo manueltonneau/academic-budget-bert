@@ -3,7 +3,7 @@
 #SBATCH --job-name=generate_samples
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=20GB
+#SBATCH --mem=250GB
 #SBATCH --time=24:00:00
 #SBATCH --gres=gpu:0
 #SBATCH --mail-type=BEGIN
