@@ -19,6 +19,7 @@ singularity exec --nv \
       --overlay /scratch/mt4493/pretraining/singularity/academic_budget_bert.ext3:ro \
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
 	    /bin/bash -c 'source /ext3/env.sh;
+	                  pip uninstall apex;
 	                  cd apex;
 	                  rm -rf build;
 	                  pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" .'
