@@ -636,20 +636,22 @@ def save_training_checkpoint(
     return
 
 
-def load_training_checkpoint(model, model_path, ckpt_id):
+def load_training_checkpoint(model, model_path, ckpt_id, init=0):
     """Utility function for checkpointing model + optimizer dictionaries
     The main purpose for this is to be able to resume training from that instant again
     """
-    _, checkpoint_state_dict = model.network.load_checkpoint(
-        model_path, ckpt_id
-    )  # load_checkpoint is DS method
-    epoch = checkpoint_state_dict["epoch"]
-    last_global_step = checkpoint_state_dict["last_global_step"]
-    last_global_data_samples = checkpoint_state_dict["last_global_data_samples"]
-    total_seconds_training = checkpoint_state_dict["exp_time_marker"]
-    wandb_run_id = checkpoint_state_dict.get("run_id", None)
-    del checkpoint_state_dict
-    return (epoch, last_global_step, last_global_data_samples, total_seconds_training, wandb_run_id)
+    if init==0:
+        _, checkpoint_state_dict = model.network.load_checkpoint(
+            model_path, ckpt_id
+        )  # load_checkpoint is DS method
+        epoch = checkpoint_state_dict["epoch"]
+        last_global_step = checkpoint_state_dict["last_global_step"]
+        last_global_data_samples = checkpoint_state_dict["last_global_data_samples"]
+        total_seconds_training = checkpoint_state_dict["exp_time_marker"]
+        wandb_run_id = checkpoint_state_dict.get("run_id", None)
+        del checkpoint_state_dict
+        return (epoch, last_global_step, last_global_data_samples, total_seconds_training, wandb_run_id)
+
 
 
 def prepare_resuming_checkpoint(args, model):
