@@ -43,7 +43,6 @@ singularity exec --nv \
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
 	    /bin/bash -c "source /ext3/env.sh; deepspeed run_pretraining.py \
   --model_type bert-mlm-roberta --tokenizer_name roberta-base \
-#  --load_training_checkpoint /scratch/mt4493/pretraining/data/init/roberta.base.tar.gz \
   --hidden_act gelu \
   --hidden_size 1024 \
   --num_hidden_layers 24 \
@@ -86,3 +85,5 @@ singularity exec --nv \
   --early_stop_eval_loss 6 \
   --seed 42 \
   --fp16"
+
+#  --load_training_checkpoint /scratch/mt4493/pretraining/data/init/roberta.base.tar.gz \
