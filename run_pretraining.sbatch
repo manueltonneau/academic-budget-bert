@@ -16,7 +16,7 @@ DATA_FOLDER=$1
 module purge
 
 DATA_DIRECTORY=/scratch/mt4493/pretraining/data/pretraining_files/${DATA_FOLDER}
-
+OUTPUT_DIR=/scratch/mt4493/pretraining/data/checkpoints
 #VOCAB_SIZE_DIR=${DATA_DIRECTORY}/${DATA_FOLDER}/${DATA_FOLDER}_bpe/${VOCAB_SIZE}
 #DATA_DIR=${VOCAB_SIZE_DIR}/pretraining_files
 #pip install --editable /usr/share/torch-xla-1.7/tpu-examples/deps/fairseq
@@ -42,7 +42,8 @@ singularity exec --nv \
       --overlay /scratch/mt4493/pretraining/singularity/academic_budget_bert.ext3:ro \
 	    /scratch/work/public/singularity/cuda11.1-cudnn8-devel-ubuntu18.04.sif \
 	    /bin/bash -c "source /ext3/env.sh; deepspeed run_pretraining.py \
-  --model_type bert-mlm-roberta --tokenizer_name roberta-base \
+  --model_type bert-mlm-roberta \
+  --tokenizer_name roberta-base \
   --hidden_act gelu \
   --hidden_size 1024 \
   --num_hidden_layers 24 \
@@ -66,7 +67,7 @@ singularity exec --nv \
   --total_training_time 24.0 \
   --early_exit_time_marker 24.0 \
   --dataset_path ${DATA_DIRECTORY} \
-  --output_dir /scratch/mt4493/pretraining/data/checkpoints \
+  --output_dir ${OUTPUT_DIR} \
   --print_steps 100 \
   --num_epochs_between_checkpoints 10000 \
   --job_name pretraining_experiment \
