@@ -61,6 +61,9 @@ try:
     import wandb
 
     _has_wandb = True
+    api_key = open('/scratch/mt4493/pretraining/keys/wandb_key.txt', 'r').read().replace('\n', '')
+    wandb.login(key=api_key)
+    wandb.init(project="twitter-pretraining", entity="mananeau")
 except:
     logger.warning(
         "W&B logger is not installed, \
