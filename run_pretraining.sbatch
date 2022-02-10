@@ -45,10 +45,10 @@ singularity exec --nv \
   --model_type bert-mlm-roberta \
   --tokenizer_name roberta-base \
   --hidden_act gelu \
-  --hidden_size 1024 \
-  --num_hidden_layers 24 \
-  --num_attention_heads 16 \
-  --intermediate_size 4096 \
+  --hidden_size 768 \
+  --num_hidden_layers 12 \
+  --num_attention_heads 12 \
+  --intermediate_size 3072 \
   --hidden_dropout_prob 0.1 \
   --attention_probs_dropout_prob 0.1 \
   --encoder_ln_mode pre-ln \
