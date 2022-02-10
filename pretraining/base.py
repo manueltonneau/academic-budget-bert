@@ -40,7 +40,7 @@ class BasePretrainModel(object):
         self,
         args,
         model_type=None,
-        model_name_or_path=None,
+        model_name_or_path='roberta-base',
         tokenizer=None,
         config=None,
         model_kwargs={},
