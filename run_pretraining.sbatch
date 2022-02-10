@@ -69,7 +69,7 @@ singularity exec --nv \
   --dataset_path ${DATA_DIRECTORY} \
   --output_dir ${OUTPUT_DIR} \
   --print_steps 100 \
-  --num_epochs_between_checkpoints 10 \
+  --num_epochs_between_checkpoints 100 \
   --job_name pretraining_experiment \
   --validation_epochs 3 \
   --validation_epochs_begin 1 \
