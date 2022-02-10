@@ -63,13 +63,11 @@ try:
     _has_wandb = True
     api_key = open('/scratch/mt4493/pretraining/keys/wandb_key.txt', 'r').read().replace('\n', '')
     wandb.login(key=api_key)
-    wandb.init(project="twitter-pretraining", entity="mananeau")
 except:
     logger.warning(
         "W&B logger is not installed, \
         for advanced logging please install using pip install wandb"
     )
-
 
 global_step = 0
 global_data_samples = 0
@@ -83,12 +81,12 @@ def get_valid_dataloader(args, dataset: Dataset):
     return (
         x
         for x in DataLoader(
-            dataset,
-            batch_size=args.validation_micro_batch,
-            sampler=train_sampler,
-            num_workers=0,
-            pin_memory=True,
-        )
+        dataset,
+        batch_size=args.validation_micro_batch,
+        sampler=train_sampler,
+        num_workers=0,
+        pin_memory=True,
+    )
     )
 
 
@@ -148,7 +146,7 @@ def create_finetune_job(args, index, global_step, model):
 
 
 def train(
-    args, index, model, optimizer, lr_scheduler, pretrain_dataset_provider, validation_dataset=None
+        args, index, model, optimizer, lr_scheduler, pretrain_dataset_provider, validation_dataset=None
 ):
     global global_step
     global global_data_samples
@@ -227,16 +225,16 @@ def train(
         step_time = time.time() - step_start
         all_step_time += step_time
         if (
-            global_step % args.log_throughput_every == 0
-            and global_step != 0
-            and model.network.is_gradient_accumulation_boundary()
-            and dist.get_rank() == 0
+                global_step % args.log_throughput_every == 0
+                and global_step != 0
+                and model.network.is_gradient_accumulation_boundary()
+                and dist.get_rank() == 0
         ):
             one_step_bs = (
-                args.train_micro_batch_size_per_gpu
-                * args.gradient_accumulation_steps
-                * dist.get_world_size()
-                * args.log_throughput_every
+                    args.train_micro_batch_size_per_gpu
+                    * args.gradient_accumulation_steps
+                    * dist.get_world_size()
+                    * args.log_throughput_every
             )
             logger.info(
                 "At step {}, the throughput is {:2f} Samples/s".format(
@@ -261,14 +259,14 @@ def train(
 
     logger.info(f"Epoch {index}: check if time to save a fine-tune checkpoint")
     if (
-        is_time_to_finetune(
-            get_now(),
-            args.exp_start_marker,
-            args.finetune_time_markers,
-            args.total_training_time,
-        )
-        and master_process(args)
-        and scale_counter_at_1 < args.scale_cnt_limit
+            is_time_to_finetune(
+                get_now(),
+                args.exp_start_marker,
+                args.finetune_time_markers,
+                args.total_training_time,
+            )
+            and master_process(args)
+            and scale_counter_at_1 < args.scale_cnt_limit
     ):
         logger.info("Creating a Fine-tune job")
         create_finetune_job(args, index, global_step, model)
@@ -523,7 +521,7 @@ def start_training(args, model, optimizer, lr_scheduler, start_epoch):
         )
 
         post = time.time()
-        logger.info(f"Total time for epoch {index}: {post-pre} seconds")
+        logger.info(f"Total time for epoch {index}: {post - pre} seconds")
 
         should_early_stop = (
             check_if_early_stop(eval_loss, scale_counter, args)
@@ -541,9 +539,9 @@ def start_training(args, model, optimizer, lr_scheduler, start_epoch):
 
         # save a checkpoint
         if (
-            index > 0
-            and args.num_epochs_between_checkpoints > 0
-            and index % args.num_epochs_between_checkpoints == 0
+                index > 0
+                and args.num_epochs_between_checkpoints > 0
+                and index % args.num_epochs_between_checkpoints == 0
         ):
             logger.info(f"Process rank - {dist.get_rank()} - attempting to save checkpoint")
             save_training_checkpoint(
@@ -589,14 +587,14 @@ def setup_wandb(args, model, resume_id=None):
     if _has_wandb and master_process(args):
         if resume_id is not None:
             wandb.init(
-                project=args.project_name,
+                project="twitter-pretraining",
+                entity="mananeau",
                 group=args.job_name,
-                dir="/tmp",
                 resume="allow",
                 id=resume_id,
             )
         else:
-            wandb.init(project=args.project_name, group=args.job_name, dir="/tmp")
+            wandb.init(project="twitter-pretraining", entity="mananeau", group=args.job_name, )
         wandb.config.update(args, allow_val_change=True)
         wandb.watch(model)
     else:
@@ -604,14 +602,14 @@ def setup_wandb(args, model, resume_id=None):
 
 
 def save_training_checkpoint(
-    model,
-    model_path,
-    epoch,
-    last_global_step,
-    last_global_data_samples,
-    exp_start_marker,
-    ckpt_id=None,
-    **kwargs,
+        model,
+        model_path,
+        epoch,
+        last_global_step,
+        last_global_data_samples,
+        exp_start_marker,
+        ckpt_id=None,
+        **kwargs,
 ):
     """Utility function for checkpointing model + optimizer dictionaries
     The main purpose for this is to be able to resume training from that instant again
@@ -639,11 +637,11 @@ def save_training_checkpoint(
     return
 
 
-def load_training_checkpoint(model, model_path, ckpt_id, init=0):
+def load_training_checkpoint(model, model_path, ckpt_id, mode):
     """Utility function for checkpointing model + optimizer dictionaries
     The main purpose for this is to be able to resume training from that instant again
     """
-    if init==0:
+    if mode == 'restart_training':
         _, checkpoint_state_dict = model.network.load_checkpoint(
             model_path, ckpt_id
         )  # load_checkpoint is DS method
@@ -654,7 +652,10 @@ def load_training_checkpoint(model, model_path, ckpt_id, init=0):
         wandb_run_id = checkpoint_state_dict.get("run_id", None)
         del checkpoint_state_dict
         return (epoch, last_global_step, last_global_data_samples, total_seconds_training, wandb_run_id)
-
+    elif mode == 'warmstart':
+        _, checkpoint_state_dict = model.network.load_checkpoint(
+            load_dir=model_path, load_module_only=True
+        )
 
 
 def prepare_resuming_checkpoint(args, model):
@@ -662,9 +663,7 @@ def prepare_resuming_checkpoint(args, model):
     global global_data_samples
 
     logger.info(
-        f"Restoring previous training checkpoint from PATH={args.load_training_checkpoint}, \
-            CKPT_ID={args.load_checkpoint_id}"
-    )
+        f"Restoring previous training checkpoint from PATH={args.load_training_checkpoint}, CKPT_ID={args.load_checkpoint_id}")
     (
         start_epoch,
         global_step,
@@ -675,6 +674,7 @@ def prepare_resuming_checkpoint(args, model):
         model=model,
         model_path=args.load_training_checkpoint,
         ckpt_id=args.load_checkpoint_id,
+        mode=args.mode
     )
     logger.info(
         f"The model is loaded from last checkpoint at epoch {start_epoch} when the global steps \
@@ -684,6 +684,16 @@ def prepare_resuming_checkpoint(args, model):
     args.exp_start_marker = get_now() - training_time_diff
 
     return start_epoch, wandb_run_id
+
+
+def prepare_warmstart(args, model):
+    logger.info(f"Initializing with PATH={args.load_training_checkpoint}")
+    load_training_checkpoint(
+        model=model,
+        model_path=args.load_training_checkpoint,
+        ckpt_id=None,
+        mode=args.mode
+    )
 
 
 def main():
@@ -697,7 +707,10 @@ def main():
 
     # Load a checkpoint if resuming training
     if args.load_training_checkpoint is not None:
-        start_epoch, wandb_run_id = prepare_resuming_checkpoint(args, model)
+        if args.mode == 'restart_training':
+            start_epoch, wandb_run_id = prepare_resuming_checkpoint(args, model)
+        elif args.mode == 'warmstart':
+            prepare_warmstart(args, model)
 
     # setup W&B logging
     setup_wandb(args, model.network, resume_id=wandb_run_id)

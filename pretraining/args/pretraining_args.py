@@ -27,6 +27,11 @@ class PretrainScriptParamsArguments:
 
     seed: Optional[int] = field(default=42, metadata={"help": "random seed for initialization)"})
 
+    mode: Optional[str] = field(
+        default=None,
+        metadata={"help": "In case we load the checkpoint, whether we do warmstart or load existing checkpoint we trained ourselves."},
+    )
+
     output_dir: Optional[str] = field(
         default=None,
         metadata={"help": "The output directory where the model checkpoints will be written."},
