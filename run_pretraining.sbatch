@@ -12,6 +12,7 @@
 #SBATCH --output=slurm_pretraining_roberta-%j.out
 
 DATA_FOLDER=$1
+RUN_ID=$2
 
 module purge
 
@@ -71,6 +72,7 @@ singularity exec --nv \
   --print_steps 100 \
   --num_epochs_between_checkpoints 1 \
   --job_name pretraining_experiment \
+  --current_run_id ${RUN_ID} \
   --validation_epochs 3 \
   --validation_epochs_begin 1 \
   --validation_epochs_end 1 \
