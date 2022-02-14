@@ -65,8 +65,8 @@ singularity exec --nv \
   --adam_beta1 0.9 \
   --adam_beta2 0.98 \
   --adam_eps 1e-6 \
-  --total_training_time 24.0 \
-  --early_exit_time_marker 24.0 \
+  --total_training_time 47.0 \
+  --early_exit_time_marker 47.0 \
   --dataset_path ${DATA_DIRECTORY} \
   --output_dir ${OUTPUT_DIR} \
   --print_steps 100 \
