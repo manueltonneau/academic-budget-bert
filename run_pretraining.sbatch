@@ -86,6 +86,7 @@ singularity exec --nv \
   --early_stop_time 180 \
   --early_stop_eval_loss 6 \
   --seed 42 \
-  --fp16"
+  --fp16 \
+  --load_training_checkpoint /scratch/mt4493/pretraining/data/init/roberta-base"
 
 #  --load_training_checkpoint /scratch/mt4493/pretraining/data/init/roberta.base.tar.gz \
