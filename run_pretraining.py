@@ -637,7 +637,7 @@ def save_training_checkpoint(
     return
 
 
-def load_training_checkpoint(model, model_path, ckpt_id, mode='warmstart'):
+def load_training_checkpoint(model, model_path, ckpt_id, mode='restart_training'):
     """Utility function for checkpointing model + optimizer dictionaries
     The main purpose for this is to be able to resume training from that instant again
     """
